@@ -1,5 +1,4 @@
 import logging
-from typing import Optional, Union
 
 import requests
 
@@ -16,12 +15,14 @@ _default_log = logging.getLogger(__name__)
 
 
 class Anypoint:
-
-    def __init__(self, authentication: Authentication,
-                 base_url: str = "https://anypoint.mulesoft.com",
-                 log: logging.Logger = _default_log,
-                 proxies: Optional[dict] = None,
-                 http_timeout: int = 30):
+    def __init__(
+        self,
+        authentication: Authentication,
+        base_url: str = "https://anypoint.mulesoft.com",
+        log: logging.Logger = _default_log,
+        proxies: dict | None = None,
+        http_timeout: int = 30,
+    ):
         self._base_url = base_url
         self._authentication = authentication
 
@@ -33,7 +34,7 @@ class Anypoint:
         self.mq = MQApi(self, log)
 
         self._log = log
-        self._access_token: Optional[str] = None
+        self._access_token: str | None = None
         self._http_client = HttpClient(log, proxies, http_timeout=http_timeout)
         self._authentication.http_client = self._http_client
 
@@ -45,19 +46,20 @@ class Anypoint:
         path = "/accounts/api/me"
         return self.request(path)
 
-    def request(self, path: str,
-                method: str = "GET",
-                body: Optional[dict] = None,
-                headers: Optional[dict] = None,
-                parameters: Optional[dict] = None,
-                return_json=True) -> Union[dict, requests.Response]:
+    def request(
+        self,
+        path: str,
+        method: str = "GET",
+        body: dict | None = None,
+        headers: dict | None = None,
+        parameters: dict | None = None,
+        return_json=True,
+    ) -> dict | requests.Response:
         url = f"{self._base_url}{path}"
         if not self._access_token and not url.endswith("/accounts/login"):
             self.login()
         if headers is None:
             headers = {}
-        headers.update({
-            "Authorization": f"Bearer {self._access_token}"
-        })
+        headers.update({"Authorization": f"Bearer {self._access_token}"})
 
         return self._http_client.request(url, method, body, headers, parameters, return_json)

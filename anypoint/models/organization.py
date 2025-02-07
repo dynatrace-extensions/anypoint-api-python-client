@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from anypoint.models.environment import Environment
 
@@ -19,7 +19,7 @@ class Organization:
         self.is_root: bool = raw_json.get("isRoot")
         self.is_master: bool = raw_json.get("isMaster")
         self.mfa_required: str = raw_json.get("mfaRequired")
-        self.entitlements: "Entitlements" = Entitlements(raw_json.get("entitlements", {}))
+        self.entitlements: Entitlements = Entitlements(raw_json.get("entitlements", {}))
 
         self._data = raw_json
         self._api_client = client
@@ -41,7 +41,7 @@ class Organization:
         self.load_balancer_workers = usage.get("loadbalancerWorkers", 0)
         self.deployment_groups = usage.get("deploymentGroups", 0)
 
-    def get_environments(self) -> List[Environment]:
+    def get_environments(self) -> list[Environment]:
         return list(self._api_client.get_environments(self.id))
 
     def get_private_spaces(self):

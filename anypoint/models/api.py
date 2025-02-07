@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anypoint.api.api_manager import ApiManagerApi
@@ -14,14 +14,14 @@ class Asset:
         self.exchange_asset_name = raw_json.get("exchangeAssetName")
         self.group_id = raw_json.get("groupId")
         self.asset_id = raw_json.get("assetId")
-        self.apis: List[Api] = [Api(raw_data, client) for raw_data in raw_json.get("apis", [])]
+        self.apis: list[Api] = [Api(raw_data, client) for raw_data in raw_json.get("apis", [])]
 
     def __repr__(self):
         return f"Asset({self.id}, {self.asset_id})"
 
 
 class Api:
-    def __init__(self, raw_json, client: ApiManagerApi):
+    def __init__(self, raw_json, _client: ApiManagerApi):
         self.org_id = raw_json.get("organizationId")
         self.id = raw_json.get("id")
         self.instance_label = raw_json.get("instanceLabel")

@@ -29,8 +29,7 @@ class WorkerStatistic:
         self.memory_total_used = self.get_latest_value("memoryTotalUsed")
         self.memory_percent_used = self.get_latest_value("memoryPercentageUsed")
         self.cpu = self.get_latest_value("cpu")
-        self.memory_total_max = raw_json.get("statistics", {})["memoryTotalMax"] if "memoryTotalMax" in raw_json.get(
-            "statistics", {}) else -1
+        self.memory_total_max = raw_json.get("statistics", {}).get("memoryTotalMax", -1)
 
         self._data = raw_json
         self._api_client = client

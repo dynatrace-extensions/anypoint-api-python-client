@@ -1,5 +1,4 @@
-
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anypoint import Anypoint
@@ -66,6 +65,5 @@ class PrivateSpace:
         self._data = raw_json
         self._client = client
 
-    def get_connections(self) -> List[Connection]:
+    def get_connections(self) -> list[Connection]:
         return self._client.organizations.get_private_space_connections(self.organization_id, self.id)
-

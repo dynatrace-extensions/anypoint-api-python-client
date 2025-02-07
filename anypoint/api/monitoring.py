@@ -26,7 +26,7 @@ class MonitoringApi:
         data = {
             "namespace": "monitoringcenter",
             "action": "GET",
-            "resources": [f"/organizations/{org_id}/admin", f"/organizations/{org_id}/viewer"]
+            "resources": [f"/organizations/{org_id}/admin", f"/organizations/{org_id}/viewer"],
         }
         return self._client.request(path, method="POST", body=data)
 
@@ -48,10 +48,5 @@ class MonitoringApi:
             self.boot_data()
         path = f"/monitoring/api/visualizer/api/datasources/proxy/{self._proxy_influx_db}/query"
         return self._client.request(
-            path,
-            parameters={
-                "db": self._influx_db,
-                "q": query_string,
-                "epoch": "ms"
-            }
+            path, parameters={"db": self._influx_db, "q": query_string, "epoch": "ms"}
         )

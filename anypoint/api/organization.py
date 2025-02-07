@@ -1,9 +1,10 @@
 import logging
-from typing import Generator, Optional, TYPE_CHECKING, List
+from collections.abc import Generator
+from typing import TYPE_CHECKING
 
 from anypoint.models.environment import Environment
 from anypoint.models.organization import Organization
-from anypoint.models.private_space import PrivateSpace, Connection
+from anypoint.models.private_space import Connection, PrivateSpace
 
 if TYPE_CHECKING:
     from anypoint import Anypoint
@@ -14,7 +15,7 @@ class OrganizationApi:
         self._client = client
         self._log = log
 
-    def get_organization(self, org_id: Optional[str] = None) -> Organization:
+    def get_organization(self, org_id: str | None = None) -> Organization:
         if org_id is None:
             data = self._client.me()
             data = data.get("user", {}).get("organization", {})
@@ -31,18 +32,20 @@ class OrganizationApi:
             yield Environment(env, self._client)
 
     def get_environment_organization(self, environment_id: str) -> Organization:
-        path = f"/cloudhub/api/organization"
+        path = "/cloudhub/api/organization"
         headers = {"X-ANYPNT-ENV-ID": environment_id}
         data = self._client.request(path, headers=headers)
         return Organization(data, self)
 
-    def get_private_spaces(self, organization_id: str) -> List[PrivateSpace]:
+    def get_private_spaces(self, organization_id: str) -> list[PrivateSpace]:
         path = f"/runtimefabric/api/organizations/{organization_id}/privatespaces"
         data = self._client.request(path)
         content = data.get("content", [])
         return [PrivateSpace(x, self._client) for x in content]
 
-    def get_private_space_connections(self, organization_id: str, private_space_id: str) -> List[Connection]:
-        path = f"/runtimefabric/api/organizations/{organization_id}/privatespaces/{private_space_id}/connections"
+    def get_private_space_connections(self, organization_id: str, private_space_id: str) -> list[Connection]:
+        path = (
+            f"/runtimefabric/api/organizations/{organization_id}/privatespaces/{private_space_id}/connections"
+        )
         data = self._client.request(path)
         return [Connection(x) for x in data]

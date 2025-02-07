@@ -4,4 +4,6 @@ anypoint, a python api client for the mulesoft anypoint APIs
 
 from .anypoint import Anypoint
 
-__version__ = '0.12.0'
+__all__ = ["Anypoint"]
+
+__version__ = "0.13.0"

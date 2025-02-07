@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Union
 
 
 class Statistic:
@@ -13,11 +12,11 @@ class Statistic:
 
 class DashboardStatistics:
     def __init__(self, data: dict):
-        self.events: List[Statistic] = []
+        self.events: list[Statistic] = []
         for timestamp, value in data.get("events").items():
             self.events.append(Statistic(timestamp, value))
 
-        self.workers: List[Worker] = []
+        self.workers: list[Worker] = []
         for worker in data.get("workerStatistics"):
             self.workers.append(Worker(worker))
 
@@ -28,9 +27,9 @@ class DashboardStatistics:
 
 
 class WorkerMetric:
-    def __init__(self, metric_id: str, datapoints: Union[dict, float, int]):
+    def __init__(self, metric_id: str, datapoints: dict | float | int):
         self.metric_id: str = metric_id
-        self.statistics: List[Statistic] = []
+        self.statistics: list[Statistic] = []
 
         if not isinstance(datapoints, dict):
             datapoints = {f"{int(datetime.now().timestamp() * 1000)}": datapoints}
@@ -41,6 +40,6 @@ class WorkerMetric:
 class Worker:
     def __init__(self, data: dict):
         self.id: str = data["id"]
-        self.metrics: List[WorkerMetric] = []
+        self.metrics: list[WorkerMetric] = []
         for metric_id, datapoints in data.get("statistics", {}).items():
             self.metrics.append(WorkerMetric(metric_id, datapoints))

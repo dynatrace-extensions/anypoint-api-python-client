@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anypoint import Anypoint
@@ -30,13 +30,14 @@ class Destination:
     def __repr__(self):
         return f"Destination({self.queue_id}, {self.type})"
 
-    def get_queue(self, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None):
-        return self._client.mq.get_queue(self.organization_id, self.environment_id, self.region_id, self.queue_id, start_date, end_date)
+    def get_queue(self, start_date: datetime | None = None, end_date: datetime | None = None):
+        return self._client.mq.get_queue(
+            self.organization_id, self.environment_id, self.region_id, self.queue_id, start_date, end_date
+        )
 
 
 class Queue:
     def __init__(self, raw_json):
-        # {'destination': 'CUSTOMER-CREATE-SFMC-Q', 'messages': [{'date': '2023-03-01T16:34:00.000+00:00', 'value': 144}], 'inflightMessages': [{'date': '2023-03-01T16:34:00.000+00:00', 'value': 0}], 'messagesVisible': [{'date': '2023-03-01T16:34:00.000+00:00', 'value': 144}], 'messagesSent': [{'date': '2023-03-01T16:34:00.000+00:00', 'value': 57}], 'messagesReceived': [{'date': '2023-03-01T16:34:00.000+00:00', 'value': 0}], 'messagesAcked': [{'date': '2023-03-01T16:34:00.000+00:00', 'value': 0}]}
         self.destination: str = raw_json.get("destination")
         # Grab the value of the first item in the list
         self.messages = raw_json.get("messages", [{}])[0].get("value")
@@ -47,5 +48,4 @@ class Queue:
         self.messages_acked = raw_json.get("messagesAcked", [{}])[0].get("value")
 
     def __repr__(self):
-        return f"Queue({self.destination}, {self.messages=}, {self.inflight_messages=}, {self.messages_visible=}, {self.messages_sent=}, {self.messages_received=}, {self.messages_acked=})"
-
+        return f"Queue({self.destination}, {self.messages=}, {self.inflight_messages=})"
