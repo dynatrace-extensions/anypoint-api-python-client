@@ -39,8 +39,8 @@ class Environment:
     def get_application_v2(self, deployment_id: str) -> ApplicationV2Details:
         return self._client.applications.get_application_v2(self.organization_id, self.id, deployment_id)
 
-    def get_apis(self) -> list[Asset]:
-        return self._client.api_manager.get_apis(self.organization_id, self.id)
+    def get_apis(self, limit: int = 100, offset: int = 0) -> list[Asset]:
+        return self._client.api_manager.get_apis(self.organization_id, self.id, limit=limit, offset=offset)
 
     def get_organization(self):
         return self._client.organizations.get_environment_organization(self.id)

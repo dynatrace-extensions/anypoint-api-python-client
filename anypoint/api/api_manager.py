@@ -14,11 +14,10 @@ class ApiManagerApi:
         self._client = client
         self._log = log
 
-    def get_apis(self, organization_id: str, environment_id: str) -> list[Asset]:
+    def get_apis(self, organization_id: str, environment_id: str, limit: int = 100, offset: int = 0) -> list[Asset]:
         path = f"/apimanager/api/v1/organizations/{organization_id}/environments/{environment_id}/apis"
-        assets = self._client.request(path).get("assets", [])
-        with open("assets.json", "w") as f:
-            import json
-
-            json.dump(assets, f, indent=2)
+        assets = self._client.request(path, parameters={
+            "limit": limit,
+            "offset": offset
+        }).get("assets", [])
         return [Asset(asset, self) for asset in assets]
