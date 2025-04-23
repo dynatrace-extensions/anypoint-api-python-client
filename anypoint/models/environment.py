@@ -39,8 +39,17 @@ class Environment:
     def get_application_v2(self, deployment_id: str) -> ApplicationV2Details:
         return self._client.applications.get_application_v2(self.organization_id, self.id, deployment_id)
 
-    def get_apis(self, limit: int = 100, offset: int = 0) -> list[Asset]:
-        return self._client.api_manager.get_apis(self.organization_id, self.id, limit=limit, offset=offset)
+    def get_apis(self, limit: int = 100, offset: int = 0, paginate: bool = False) -> Generator[Asset, None, None]:
+        if not paginate:
+            return self._client.api_manager.get_apis(self.organization_id, self.id, limit=limit, offset=offset)
+        else:
+            while True:
+                assets = self._client.api_manager.get_apis(self.organization_id, self.id, limit=limit, offset=offset)
+                if not assets:
+                    break
+                for asset in assets:
+                    yield asset
+                offset += limit
 
     def get_organization(self):
         return self._client.organizations.get_environment_organization(self.id)

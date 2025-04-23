@@ -6,4 +6,4 @@ from .anypoint import Anypoint
 
 __all__ = ["Anypoint"]
 
-__version__ = "0.14.0"
+__version__ = "0.16.0"
