@@ -4,6 +4,10 @@ The Stats API returns each series as a list of ``{"date": ..., "value": ...}``
 datapoints. A series can come back as an empty list (no datapoints in the
 requested window, e.g. an idle queue) or as ``null``. Those cases must not
 raise, otherwise callers can't get any stats for the queue.
+
+Versions 0.9.0 to 0.16.0 index ``[0]`` unconditionally, so the tests marked
+"FAILS on 0.9.0-0.16.0" below reproduce that bug. The others are guard tests
+that pass on those versions too and pin down behaviour the fix must keep.
 """
 
 from anypoint.models.destination import Queue
@@ -30,6 +34,11 @@ def _payload(**series):
 
 
 def test_queue_normal_payload():
+    """Guard test, passes on 0.9.0-0.16.0 too.
+
+    A normal response (sample from the original 0.8.x code comment) still
+    parses to the first datapoint of each series.
+    """
     raw = {
         "destination": "CUSTOMER-CREATE-SFMC-Q",
         "messages": [{"date": DATE, "value": 144}],
@@ -52,6 +61,12 @@ def test_queue_normal_payload():
 
 
 def test_queue_empty_series_does_not_raise():
+    """FAILS on 0.9.0-0.16.0 with ``IndexError: list index out of range``.
+
+    All series are empty lists, e.g. an idle queue with no datapoints in the
+    requested window. This is the error reported in DXS-8214. Every series
+    must be None.
+    """
     queue = Queue({"destination": "Q", **{key: [] for key in SERIES_KEYS}})
 
     for attr in SERIES_KEYS.values():
@@ -59,6 +74,12 @@ def test_queue_empty_series_does_not_raise():
 
 
 def test_queue_empty_series_only_affects_that_series():
+    """FAILS on 0.9.0-0.16.0 with ``IndexError: list index out of range``.
+
+    Only ``messages`` is empty. The old code raised on the first attribute,
+    so the whole Queue was lost. Now only that series is None and the
+    others are still parsed.
+    """
     queue = Queue(_payload(messages=[]))
 
     assert queue.messages is None
@@ -67,6 +88,11 @@ def test_queue_empty_series_only_affects_that_series():
 
 
 def test_queue_null_series_does_not_raise():
+    """FAILS on 0.9.0-0.16.0 with ``TypeError: 'NoneType' object is not subscriptable``.
+
+    All series are ``null`` in the response. The ``[{}]`` default of
+    ``dict.get`` only applies to missing keys, not to keys set to null.
+    """
     queue = Queue({"destination": "Q", **dict.fromkeys(SERIES_KEYS)})
 
     for attr in SERIES_KEYS.values():
@@ -74,6 +100,11 @@ def test_queue_null_series_does_not_raise():
 
 
 def test_queue_missing_series():
+    """Guard test, passes on 0.9.0-0.16.0 too.
+
+    Missing keys already worked through the old ``[{}]`` default. They must
+    still give None.
+    """
     queue = Queue({"destination": "Q"})
 
     for attr in SERIES_KEYS.values():
@@ -81,6 +112,11 @@ def test_queue_missing_series():
 
 
 def test_queue_item_without_value():
+    """Guard test, passes on 0.9.0-0.16.0 too.
+
+    A datapoint without a ``value`` (or an empty dict) gives None, and the
+    neighbouring series are unaffected.
+    """
     queue = Queue(_payload(messages=[{"date": DATE}], inflightMessages=[{}]))
 
     assert queue.messages is None
